@@ -13,6 +13,7 @@ app.get('/', (_request, response) => {
 });
 
 const talkerRouter = require('./routes/talkerRouter');
+
 app.use('/talker', talkerRouter);
 
 app.listen(PORT, () => {
