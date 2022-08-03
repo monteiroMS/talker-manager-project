@@ -10,4 +10,8 @@ router.get('/', async (_req, res) => {
     .json(content);
 });
 
+// router.get('/:id', async (_req, res) => {
+
+// });
+
 module.exports = router;
