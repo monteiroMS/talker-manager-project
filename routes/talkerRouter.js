@@ -22,7 +22,7 @@ router.get('/:id', async (req, res) => {
       message: 'Pessoa palestrante não encontrada',
     });
   }
-  
+
   return res.status(200).json(talker);
 });
 
