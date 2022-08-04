@@ -15,6 +15,27 @@ const getData = async () => {
   }
 };
 
+router.get('/search', tokenValidator, async (req, res) => {
+  const { q } = req.query;
+  if (!q) {
+    try {
+      return res.status(200).json(await getData());
+    } catch (error) {
+      return res.status(500).json({ message: 'Erro interno no servidor' });
+    }
+  }
+  try {
+    const data = await getData();
+    const response = data.filter(({ name }) => name.includes(q));
+    console.log(response);
+    return res.status(200).json(response);
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Erro interno no servidor',
+    });
+  }
+});
+
 router.get('/', async (_req, res) => {
   try {
     const data = await getData();
