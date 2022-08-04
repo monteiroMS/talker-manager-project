@@ -1,4 +1,4 @@
-const { checarData } = require('./helpers');
+const { checarData, intEntre1e5 } = require('./helpers');
 
 const talkValidator = (req, res, next) => {
   const { talk } = req.body;
@@ -33,13 +33,13 @@ const watchedAtValidator = (req, res, next) => {
 const rateValidator = (req, res, next) => {
   const { talk: { rate } } = req.body;
 
-  if (!rate) {
+  if (!rate && rate !== 0) {
     return res.status(400).json({
       message: 'O campo "rate" é obrigatório',
     });
   }
 
-  if (typeof rate !== 'number' || rate < 1 || rate > 5) {
+  if (intEntre1e5(rate)) {
     return res.status(400).json({
       message: 'O campo "rate" deve ser um inteiro de 1 à 5',
     });

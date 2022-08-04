@@ -7,9 +7,13 @@ const ageValidator = require('../middlewares/ageValidator');
 
 const router = express.Router();
 
+const getData = async () => JSON.parse(
+  await fs.readFile('talker.json', { encoding: 'utf8' }),
+);
+
 router.get('/', async (_req, res) => {
   try {
-    const data = JSON.parse(await fs.readFile('talker.json', { encoding: 'utf8' }));
+    const data = await getData();
     return res.status(200).json(data);
   } catch (error) {
     return res.status(200).json([]);
@@ -18,7 +22,7 @@ router.get('/', async (_req, res) => {
 
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
-  const data = JSON.parse(await fs.readFile('talker.json', { encoding: 'utf8' }));
+  const data = await getData();
   const talker = data.find(({ id: managerId }) => Number(id) === managerId);
 
   if (!talker) {
@@ -30,15 +34,15 @@ router.get('/:id', async (req, res) => {
   return res.status(200).json(talker);
 });
 
-const newTalkerValidators = [
+const talkerValidators = [
   tokenValidator,
   nameValidator,
   ageValidator,
   ...talkValidators,
 ];
 
-router.post('/', newTalkerValidators, async (req, res) => {
-  const data = JSON.parse(await fs.readFile('talker.json', { encoding: 'utf8' }));
+router.post('/', talkerValidators, async (req, res) => {
+  const data = await getData();
 
   const newTalker = req.body;
 
@@ -55,6 +59,25 @@ router.post('/', newTalkerValidators, async (req, res) => {
   }
 
   return res.status(201).json(newTalker);
+});
+
+router.put('/:id', talkerValidators, async (req, res) => {
+  const { id: talkerId } = req.params;
+
+  const update = req.body;
+  update.id = Number(talkerId);
+
+  try {
+    const data = await getData();
+    const index = data.findIndex(({ id }) => id === Number(talkerId));
+    data[index] = update;
+    await fs.writeFile('talker.json', JSON.stringify(data));
+    return res.status(200).json(data[index]);
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Erro interno no servidor',
+    });
+  }
 });
 
 module.exports = router;

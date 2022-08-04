@@ -9,7 +9,12 @@ function checarData(data) {
   return dateRegex.test(data);
 }
 
+function intEntre1e5(number) {
+  return (typeof number !== 'number' || number < 1 || number > 5);
+}
+
 module.exports = {
   generateToken,
   checarData,
+  intEntre1e5,
 };
