@@ -7,9 +7,13 @@ const ageValidator = require('../middlewares/ageValidator');
 
 const router = express.Router();
 
-const getData = async () => JSON.parse(
-  await fs.readFile('talker.json', { encoding: 'utf8' }),
-);
+const getData = async () => {
+  try {
+    return JSON.parse(await fs.readFile('talker.json', { encoding: 'utf8' }));
+  } catch (error) {
+    return new Error(error.message);
+  }
+};
 
 router.get('/', async (_req, res) => {
   try {
@@ -76,6 +80,26 @@ router.put('/:id', talkerValidators, async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       message: 'Erro interno no servidor',
+    });
+  }
+});
+
+router.delete('/:id', tokenValidator, async (req, res) => {
+  const { id: talkerId } = req.params;
+  try {
+    const data = await getData();
+    const index = data.findIndex(({ id }) => id === Number(talkerId));
+
+    if (index === -1) {
+      throw new Error('Palestrante não encontrado');
+    } else {
+      data.splice(index, 1);
+      await fs.writeFile('talker.json', JSON.stringify(data));
+      return res.status(204).end();
+    }
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
     });
   }
 });
